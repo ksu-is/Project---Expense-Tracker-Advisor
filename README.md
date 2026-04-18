@@ -3,7 +3,8 @@
 # What the project does: It operates a Python-based pipeline to ingest pre-categorized CSV data, aggregate it into specific silos (Rent, Food, Utilities, Discretionary), and evaluate the results against the 50/30/20 rule.
 # Why the project is useful: It eliminates "financial fog" by providing an objective, emotion-free audit of spending habits and triggering logic alerts when discretionary spending exceeds established benchmarks.
 # How to get started: Ensure your Python environment is established, format your transaction data into the required "pre-categorized" schema, and execute the ingestion script.
-
+git clone https://github.com/pxaris/expenditure-analyzer.git
+cd expenditure-analyzer
 Phase 1
 [ ] Install Python & Dependencies: Establish your environment and install the pandas library, which is the standard for high-performance data manipulation.
 [ ] Define CSV Schema: Create a "pre-categorized" CSV template with strict headers (e.g., Date, Description, Category, Amount) to ensure the ingestion engine avoids misidentification errors.
