@@ -1,0 +1,31 @@
+import pandas as pd
+
+def audit_finances(csv_file, monthly_income):
+    # 1. Ingest
+    df = pd.read_csv(csv_file)
+    
+    # 2. Aggregate into your specific silos
+    # This sums everything based on the labels in your CSV
+    silos = df.groupby('Category')['Amount'].sum().to_dict()
+    
+    # 3. Map Silos to 50/30/20 Buckets
+    needs = silos.get('Rent', 0) + silos.get('Utilities', 0) + silos.get('Food', 0)
+    wants = silos.get('Discretionary', 0)
+    savings = monthly_income - (needs + wants) # The remainder is the 20%
+    
+    # 4. Evaluate against the Rule
+    results = {
+        "Needs": (needs / monthly_income) * 100,
+        "Wants": (wants / monthly_income) * 100,
+        "Savings": (savings / monthly_income) * 100
+    }
+    
+    # 5. Output Results
+    print(f"--- Financial Audit ---")
+    for bucket, pct in results.items():
+        print(f"{bucket}: {pct:.2f}%")
+        
+    return results
+
+# Example Usage:
+# audit_finances('data.csv', 5000)
