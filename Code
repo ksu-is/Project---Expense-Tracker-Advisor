@@ -1,31 +1,35 @@
-import pandas as pd
+import csv
 
-def audit_finances(csv_file, monthly_income):
-    # 1. Ingest
-    df = pd.read_csv(csv_file)
+def run_audit(file_path, monthly_income):
+    # 1. Initialize Silos
+    silos = {'Rent': 0, 'Food': 0, 'Utilities': 0, 'Discretionary': 0}
     
-    # 2. Aggregate into your specific silos
-    # This sums everything based on the labels in your CSV
-    silos = df.groupby('Category')['Amount'].sum().to_dict()
-    
-    # 3. Map Silos to 50/30/20 Buckets
-    needs = silos.get('Rent', 0) + silos.get('Utilities', 0) + silos.get('Food', 0)
-    wants = silos.get('Discretionary', 0)
-    savings = monthly_income - (needs + wants) # The remainder is the 20%
-    
-    # 4. Evaluate against the Rule
-    results = {
-        "Needs": (needs / monthly_income) * 100,
-        "Wants": (wants / monthly_income) * 100,
-        "Savings": (savings / monthly_income) * 100
-    }
-    
-    # 5. Output Results
-    print(f"--- Financial Audit ---")
-    for bucket, pct in results.items():
-        print(f"{bucket}: {pct:.2f}%")
-        
-    return results
+    # 2. Ingest & Aggregate
+    with open(file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            category = row['Category']
+            amount = float(row['Amount'])
+            
+            if category in silos:
+                silos[category] += amount
 
-# Example Usage:
-# audit_finances('data.csv', 5000)
+    # 3. Map to 50/30/20 Buckets
+    needs_total = silos['Rent'] + silos['Utilities'] + silos['Food']
+    wants_total = silos['Discretionary']
+    savings_total = monthly_income - (needs_total + wants_total)
+
+    # 4. Evaluate (Calculate Percentages)
+    needs_pct = (needs_total / monthly_income) * 100
+    wants_pct = (wants_total / monthly_income) * 100
+    savings_pct = (savings_total / monthly_income) * 100
+
+    # 5. Output
+    print(f"Needs: {needs_pct:.1f}% (Target: 50%)")
+    print(f"Wants: {wants_pct:.1f}% (Target: 30%)")
+    print(f"Savings: {savings_pct:.1f}% (Target: 20%)")
+
+# Usage: run_audit('expenses.csv', 4000)
+
+# At the bottom of your script:
+run_audit('my_spending.csv', 5000)
