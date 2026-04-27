@@ -1,3 +1,4 @@
+#Run this command first in the terminal before using the program cd "C:\Users\Tru\OneDrive\School\App Dev\Python"
 import csv
 
 def run_audit(file_path, monthly_income):
