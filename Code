@@ -6,31 +6,60 @@ def run_audit(file_path, monthly_income):
     silos = {'Rent': 0, 'Food': 0, 'Utilities': 0, 'Discretionary': 0}
     
     # 2. Ingest & Aggregate
-    with open(file_path, mode='r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            category = row['Category']
-            amount = float(row['Amount'])
-            
-            if category in silos:
-                silos[category] += amount
+    try:
+        with open(file_path, mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                category = row['Category']
+                amount = float(row['Amount'])
+                
+                if category in silos:
+                    silos[category] += amount
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Check your folder path.")
+        return
 
     # 3. Map to 50/30/20 Buckets
     needs_total = silos['Rent'] + silos['Utilities'] + silos['Food']
     wants_total = silos['Discretionary']
+    # Savings is whatever is left over from the income
     savings_total = monthly_income - (needs_total + wants_total)
 
-    # 4. Evaluate (Calculate Percentages)
+    # 4. Calculate Percentages
     needs_pct = (needs_total / monthly_income) * 100
     wants_pct = (wants_total / monthly_income) * 100
     savings_pct = (savings_total / monthly_income) * 100
 
-    # 5. Output
+    # 5. Output Audit Results
+    print(f"--- Financial Audit ---")
     print(f"Needs: {needs_pct:.1f}% (Target: 50%)")
     print(f"Wants: {wants_pct:.1f}% (Target: 30%)")
     print(f"Savings: {savings_pct:.1f}% (Target: 20%)")
 
-# Usage: run_audit('expenses.csv', 4000)
+    # 6. Recommendation Logic
+    print("\n--- Strategic Recommendations ---")
+    
+    # Needs Evaluation (Target: 50%)
+    if needs_pct > 50:
+        print(f"[-] Cut back on Needs. You are over by {needs_pct - 50:.1f}%. Audit your Food and Utility silos.")
+    elif needs_pct < 40:
+        print(f"[+] Room to move. You are {50 - needs_pct:.1f}% under on Needs. Consider higher quality groceries or housing.")
+
+    # Wants Evaluation (Target: 30%)
+    if wants_pct > 30:
+        print(f"[-] Cut back on Discretionary. You are over-spending on 'Wants' by {wants_pct - 30:.1f}%.")
+    elif wants_pct < 25:
+        print(f"[+] Lifestyle Surplus. You can increase your 'Wants' spending by up to {30 - wants_pct:.1f}%.")
+
+    # Savings Evaluation (Target: 20%)
+    if savings_pct < 20:
+        print(f"[!] CRITICAL: Savings are {20 - savings_pct:.1f}% below target. Immediately reduce 'Wants' to compensate.")
+    elif savings_pct > 20:
+        print(f"[*] Efficiency Bonus: You are saving {savings_pct - 20:.1f}% more than required. Logic suggests maintaining this lead.")
+
+# Execution Call
+# Ensure 'my_spending.csv' is in the same folder as this script
+run_audit('my_spending.csv', 5000)
 
 # At the bottom of your script:
 run_audit('my_spending.csv', 5000)
